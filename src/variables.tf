@@ -1,6 +1,5 @@
 ###cloud vars
 
-
 variable "cloud_id" {
   type        = string
   description = "https://cloud.yandex.ru/docs/resource-manager/operations/cloud/get-id"
@@ -33,6 +32,38 @@ variable "vpc_name" {
 
 variable "vms_ssh_root_key" {
   type        = string
-  default     = "<your_ssh_ed25519_key>"
+  default     = "~/.ssh/id_ed25519.pub"
   description = "ssh-keygen -t ed25519"
+}
+
+
+###vm vars
+
+variable "vm_web_name" {
+  type        = string
+  default     = "netology-develop-platform-web"
+  description = "VM name"
+}
+
+variable "vm_web_platform_id" {
+  type        = string
+  default     = "standard-v1"
+  description = "https://yandex.cloud/ru/docs/compute/concepts/vm-platforms"
+}
+
+variable "vm_web_image_family" {
+  type        = string
+  default     = "ubuntu-2004-lts"
+  description = "https://cloud.yandex.ru/docs/compute/concepts/images"
+}
+
+variable "vm_web_resources" {
+  type = map(number)
+  default = {
+    cores         = 2
+    memory        = 1
+    core_fraction = 5
+  }
+  description = "https://yandex.cloud/ru/docs/data-proc/operations/cluster-create"
+
 }
