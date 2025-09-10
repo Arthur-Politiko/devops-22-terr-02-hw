@@ -2,7 +2,7 @@
 
 variable "vpc_db_name" {
   type        = string
-  default     = "db"
+  default     = "sub-platform-db"
   description = "VPC network & subnet name"
 }
 
@@ -22,7 +22,7 @@ variable "vm_db_cidr" {
 
 variable "vm_db_name" {
   type        = string
-  default     = "netology-db-platform-web"
+  default     = "netology-develop-platform-db"
   description = "VM name"
 }
 

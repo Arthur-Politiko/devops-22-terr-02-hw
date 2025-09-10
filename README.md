@@ -321,3 +321,78 @@ resource "yandex_compute_instance" "db" {
 ну и зачем? А без этого задвоенного указания получал ошибку в проекте. На самом деле такое часто встречается, с тем же сервисным аккаунтом, всегда нужно указывать облако и папку для tf драйвера, зачем, если я токен выпускаю на определенный ресурс? В общем сыро немного или избыточно, от того можно с ошибкой какой-то сидеть и тупить пол-дня.
 
 #### Задание 4
+
+  В общем, пришлось немного покурить тему с переменными. Впечатления двоякие. Это окнечно далеко не ЯП и отсюда все ваши желания по поводу работы с типами данных как в обычном ЯП идут лесом. 
+  
+  Важно усвоить. У ресурса есть **блок** и есть **атрибут**. Блок не получится проинициализировать описанной структурой.
+
+  Вот пример, пишу я такой вот файл **variables.tf**.
+
+```hcl
+variable "vms" {
+  type = map(any)
+  default = {
+    vms = {
+      web = {
+        name        = "web"
+        platform_id = "standard-v1"
+        zone        = "ru-central1-a"
+        resources = {
+          cores         = 4
+          memory        = 4
+          core_fraction = 20
+        }
+      }
+    }
+  }
+}
+```
+
+и хочу инициализировать блок resources за один присест, так чтобы **main.tf** выглядел примерно так:
+
+```hcl
+resource "yandex_compute_instance" "vm" {
+  for_each = var.vms
+
+  name        = each.value.name
+  platform_id = each.value.platform_id
+  zone        = each.value.zone
+  resources   = each.value.resources
+...
+}
+```
+То так никогда работать не будет. Ты должен написать вот так:
+```hcl
+resource "yandex_compute_instance" "vm" {
+  for_each = var.vms
+
+  name        = each.value.name
+  platform_id = each.value.platform_id
+  zone        = each.value.zone
+  
+  # I get cash for every line of my code
+  resources {
+    cores         = each.value.resources.cores
+    memory        = each.value.resources.memory
+    core_fraction = each.value.resources.core_fraction
+  }...
+}
+```
+Если "морда" ресурса содержит блоки, гладко не получится. Правда можно это всё "скрыть" в своём модуле.
+
+С другой стороны, это немного защищает от ошибок и позволяет terraform выдавать осмысленные сообщения об ошибках при очепятках
+
+![answer](./img/tf-02.4.0.png)
+
+#### Задание 5
+
+![answer](./img/tf-02.5.0.png)
+
+
+#### Задание 6
+
+Решая задание 4 уже сделал это. Поэтому картинка из [variables_task4.tf](./src/variables_task4.tf)
+
+![answer](./img/tf-02.6.0.png)
+
+

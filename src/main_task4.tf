@@ -11,19 +11,48 @@
 
 # Короче, можно и не через модули, а просто используя for_each в resource,
 
+
+resource "yandex_vpc_network" "network" {
+  name = var.networks.net.name
+}
+
+resource "yandex_vpc_subnet" "subnets" {
+  for_each = var.networks.net.subnets
+
+  name           = each.value.name  # "sub-web", "sub-db"
+  zone           = each.value.zone  # "ru-central1-a", "ru-central1-b"
+  network_id     = yandex_vpc_network.network.id
+  v4_cidr_blocks = each.value.v4_cidr_blocks
+}
+
 resource "yandex_compute_instance" "vm" {
   for_each = var.vms
-  
-  name        = each.key  # "web", "db"
-  platform_id = each.platform # "standard-v1"
-  zone        = each.zone     # "ru-central1-a", "ru-central1-b"
+
+  name        = each.value.name     # "web", "db"
+  platform_id = each.value.platform # "standard-v1"
+  zone        = each.value.zone     # "ru-central1-a", "ru-central1-b"
 
   resources {
-    cores  = each.value.cores   # 
-    memory = each.value.memory  # 
-    core_fraction = each.value.core_fraction # 
+    cores  = each.value.resources.cores   # 
+    memory = each.value.resources.memory  # 
+    core_fraction = each.value.resources.core_fraction # 
   }
-
+  metadata = {
+    serial-port-enable =  each.value.metadata.serial-port-enable
+    ssh-keys           = "ubuntu:${file(var.vms_ssh_root_key)}"
+  }
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu.image_id
+    }
+  }
+  scheduling_policy {
+    preemptible = each.value.scheduling_policy.preemptible
+  }
+  network_interface {
+    subnet_id = yandex_vpc_subnet.subnets[each.value.network_interface.subnet_name].id
+    nat       = each.value.network_interface.nat
+  }
 }
 
 # module "vpc-instance" {
@@ -31,7 +60,7 @@ resource "yandex_compute_instance" "vm" {
 
 #   network_name        = var.network.net.name
 #   network_description = "Test network created with module"
-  
+
 #   for_each = var.network.net.subnets
 
 #   private_subnets.name           = each.value.name

@@ -1,5 +1,5 @@
-./cloud-key/key.json
-./src/.terraform
-./terraform.tfstate
-./terraform.tfstate.backup
-
+**/key.json
+*/.terraform
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/cloud.auto.tfvars

@@ -24,9 +24,14 @@ variable "default_cidr" {
 variable "vpc_name" {
   type        = string
   default     = "develop"
-  description = "VPC network & subnet name"
+  description = "VPC network name"
 }
 
+variable "vpc_web_name" {
+  type        = string
+  default     = "sub-platform-web"
+  description = "VPC subnet name"
+}
 
 ###ssh vars
 
@@ -38,6 +43,24 @@ variable "vms_ssh_root_key" {
 
 
 ###vm vars
+
+variable "project" {
+  type        = string
+  default     = "netology"
+  description = "Project name"
+}
+
+variable "platform" {
+  type        = string
+  default     = "mobile"
+  description = "Platform name"
+}
+
+variable "stage" {
+  type        = string
+  default     = "develop"
+  description = "Code development stage"
+}
 
 variable "vm_web_name" {
   type        = string
